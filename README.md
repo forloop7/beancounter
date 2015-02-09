@@ -1,2 +1,2 @@
 # beancounter
-A Python library to manage home budget the way I like it :-)
+A Python library that implements managing home budget the way I like it :-)
