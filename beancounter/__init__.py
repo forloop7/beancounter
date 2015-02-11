@@ -1,1 +1,1 @@
-from beancounter.account import Account
+from beancounter.basics.account import Account
