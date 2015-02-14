@@ -1,4 +1,5 @@
-from beancounter.basics.transaction import Transaction, Bill, Deposit
+from beancounter.basics.transaction import Transaction
+from beancounter import Bill, Deposit
 from decimal import Decimal
 from datetime import date
 import pytest
