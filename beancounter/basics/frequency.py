@@ -13,6 +13,8 @@ class Frequency:
         """
         pass
 
+    # TODO: range, based on iterator
+
 
 class Daily(Frequency):
     """
