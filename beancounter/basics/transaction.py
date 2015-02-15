@@ -1,8 +1,6 @@
 from datetime import date
 
-# TODO: Transfer
 # TODO: Seq
-# TODO: Status: Entered, Confirmed
 
 class Transaction:
     """
@@ -52,7 +50,7 @@ class Bill(Transaction):
     """
 
     def balance_change(self):
-        """The actual change to the account balance. Usually equal to amount() or -amount()."""
+        """The actual change to the account _balance. Usually equal to amount() or -amount()."""
         return -self._amount
 
 
@@ -62,7 +60,7 @@ class Deposit(Transaction):
     """
 
     def balance_change(self):
-        """The actual change to the account balance. Usually equal to amount() or -amount()."""
+        """The actual change to the account _balance. Usually equal to amount() or -amount()."""
         return self._amount
 
 
@@ -102,7 +100,7 @@ class TransferIn(TransferSide):
     """
 
     def balance_change(self):
-        """The actual change to the account balance. Usually equal to amount() or -amount()."""
+        """The actual change to the account _balance. Usually equal to amount() or -amount()."""
         return self.transfer._amount
 
 
@@ -112,7 +110,7 @@ class TransferOut(TransferSide):
     """
 
     def balance_change(self):
-        """The actual change to the account balance. Usually equal to amount() or -amount()."""
+        """The actual change to the account _balance. Usually equal to amount() or -amount()."""
         return -self.transfer._amount
 
 
@@ -121,7 +119,16 @@ class Transfer(Transaction):
     Represents a transfer between accounts
     """
 
-    def __init__(self, amount, tx_date, entered=None, in_recorded=None, out_recorded=None):
+    def __init__(self, amount, tx_date, entered=None, out_recorded=None, in_recorded=None):
+        """
+        Constructor
+        :param amount: transfer amount
+        :param tx_date: transfer date (when initiated)
+        :param entered: date the transfer was entered to the system
+        :param out_recorded: date the transfer was recorded at source bank
+        :param in_recorded: date the transfer was recorded at destination bank
+        :return:
+        """
         super().__init__(amount, tx_date, entered, recorded=None)
 
         self._in = TransferIn(self, in_recorded)

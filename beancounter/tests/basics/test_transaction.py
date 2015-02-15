@@ -32,7 +32,7 @@ def test_transaction_creation_defaults(cls):
     assert tx.date() == txdate
     assert tx.entered() == date.today()
     assert tx.is_recorded() == False
-    assert tx.recorded() == None
+    assert tx.recorded() is None
 
 
 @pytest.mark.parametrize("cls,amount,exp_amount", [(Bill, Decimal('32.11'), Decimal('-32.11')),
@@ -51,13 +51,15 @@ def test_transfer_creation():
     entered = date(2015, 3, 2)
     in_recorded = date(2015, 3, 9)
     out_recorded = date(2015, 3, 8)
-    tx = Transfer(amount, txdate, entered, in_recorded, out_recorded)
+    tx = Transfer(amount, txdate, entered, out_recorded, in_recorded)
 
     assert tx.amount() == amount
     assert tx.date() == txdate
     assert tx.entered() == entered
     assert tx.is_recorded()
     assert tx.recorded() == max(in_recorded, out_recorded)
+    assert tx.outgoing().recorded() == out_recorded
+    assert tx.incoming().recorded() == in_recorded
 
 
 def test_transfer_creation_default():
@@ -71,7 +73,9 @@ def test_transfer_creation_default():
     assert tx.date() == txdate
     assert tx.entered() == entered
     assert not tx.is_recorded()
-    assert tx.recorded() == None
+    assert tx.recorded() is None
+    assert tx.outgoing().recorded() is None
+    assert tx.incoming().recorded() is None
 
 
 @pytest.mark.parametrize('in_recorded,out_recorded,exp_recorded',
@@ -91,7 +95,7 @@ def test_transfer_recording(in_recorded, out_recorded, exp_recorded):
     assert tx.recorded() == exp_recorded
 
 
-def test_transfer_balance():
+def test_transfer_sides():
     """Transfer in and out have correct balances"""
     amount = Decimal('1211.21')
     txdate = date(2015, 2, 5)
@@ -101,5 +105,5 @@ def test_transfer_balance():
 
     assert tx.amount() == inc.amount() == out.amount()
     assert tx.date() == inc.date() == out.date()
-    assert tx.amount() == inc.amount() == out.amount()
+    assert tx.entered() == inc.entered() == out.entered()
     assert tx.amount() == inc.balance_change() == -out.balance_change()
