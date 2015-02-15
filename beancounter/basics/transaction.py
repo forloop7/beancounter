@@ -43,6 +43,13 @@ class Transaction:
         """Date the Transaction was recorded by bank"""
         return self._recorded
 
+    def record(self, recorded_date):
+        """
+        Records the transaction with the date specified
+        :param recorded_date: date of recording
+        """
+        self._recorded = recorded_date
+
 
 class Bill(Transaction):
     """

@@ -54,3 +54,11 @@ class Account:
         :param amount: amount, right? Make it Decimal
         """
         self.register(Bill(amount, bill_date))
+
+    def recorded_balance(self):
+        """
+        Recorded balance - a balance of an account that includes only recorded transactions
+        :return: recorded account balance
+        """
+        recorded_change = sum(t.balance_change() for t in self._transactions if t.is_recorded())
+        return self._initial_balance + recorded_change

@@ -49,6 +49,19 @@ def test_transaction_balance_change(cls, amount, exp_amount):
     assert tx.balance_change() == exp_amount
 
 
+@pytest.mark.parametrize("cls", [(Transaction), (Bill), (Deposit)])
+def test_recording_transaction(cls):
+    """
+    Transaction can be recorded
+    """
+    tx = cls(Decimal('12.00'), date(2011, 3, 21))
+    assert not tx.is_recorded()
+
+    tx.record(date.today())
+    assert tx.is_recorded()
+    assert tx.recorded() == date.today()
+
+
 def test_transfer_creation():
     """
     Transfers can be created
@@ -120,3 +133,4 @@ def test_transfer_sides():
     assert tx.date() == inc.date() == out.date()
     assert tx.entered() == inc.entered() == out.entered()
     assert tx.amount() == inc.balance_change() == -out.balance_change()
+

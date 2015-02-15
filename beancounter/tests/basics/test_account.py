@@ -46,7 +46,7 @@ def test_bill_balance2():
 
 def test_deposits_list():
     """
-    Bills can be paid from an account, updating balance
+    Deposits can be made to an account, updating balance
     """
     acc = Account('Some account')
     amount = Decimal('120.00')
@@ -83,3 +83,18 @@ def test_bills_list():
     assert bill.date() == bill_date
     assert bill.entered() == date.today()
     assert acc.balance() == 3 * amount
+
+
+def test_deposit_recorded_balance():
+    """
+    Deposits made to an account must be recorded to update recorded_balance
+    """
+    acc = Account('Some account')
+
+    to_record = Decimal('100.00')
+    acc.deposit(to_record, date.today())
+    acc.deposit(Decimal('120.00'), date.today())
+    assert acc.recorded_balance() == Decimal('0.00')
+
+    acc.transactions()[0].record(date.today())
+    assert acc.recorded_balance() == to_record
