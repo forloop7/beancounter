@@ -7,7 +7,9 @@ import pytest
 
 @pytest.mark.parametrize("cls", [(Transaction), (Bill), (Deposit)])
 def test_transaction_creation(cls):
-    """Transactions can be created"""
+    """
+    Transactions can be created
+    """
     amount = Decimal('12.21')
     txdate = date(2015, 1, 5)
     entered = date(2015, 2, 2)
@@ -23,7 +25,9 @@ def test_transaction_creation(cls):
 
 @pytest.mark.parametrize("cls", [(Transaction), (Bill), (Deposit)])
 def test_transaction_creation_defaults(cls):
-    """Transactions can be created with proper defaults"""
+    """
+    Transactions can be created with proper defaults
+    """
     amount = Decimal('1211.21')
     txdate = date(2015, 2, 5)
     tx = cls(amount, txdate)
@@ -38,14 +42,17 @@ def test_transaction_creation_defaults(cls):
 @pytest.mark.parametrize("cls,amount,exp_amount", [(Bill, Decimal('32.11'), Decimal('-32.11')),
                                                    (Deposit, Decimal('43.11'), Decimal('43.11'))])
 def test_transaction_balance_change(cls, amount, exp_amount):
-    """Bill and Income have proper balance_change() implementations"""
+    """
+    Bill and Income have proper balance_change() implementations
+    """
     tx = cls(amount, date.today())
-
     assert tx.balance_change() == exp_amount
 
 
 def test_transfer_creation():
-    """Transfers can be created"""
+    """
+    Transfers can be created
+    """
     amount = Decimal('42.21')
     txdate = date(2015, 3, 5)
     entered = date(2015, 3, 2)
@@ -63,7 +70,9 @@ def test_transfer_creation():
 
 
 def test_transfer_creation_default():
-    """Transfers can be created with defaults"""
+    """
+    Transfers can be created with defaults
+    """
     amount = Decimal('42.21')
     txdate = date(2015, 3, 5)
     entered = date(2015, 3, 2)
@@ -85,7 +94,9 @@ def test_transfer_creation_default():
                           (date(2015, 1, 1), date(2015, 5, 5), date(2015, 5, 5)),
                           (date(2015, 4, 4), date(2015, 2, 2), date(2015, 4, 4))])
 def test_transfer_recording(in_recorded, out_recorded, exp_recorded):
-    """Transfers are recorded when both sides are recorded"""
+    """
+    Transfers are recorded when both sides are recorded
+    """
     amount = Decimal('42.21')
     txdate = date(2015, 3, 5)
     entered = date(2015, 3, 2)
@@ -96,7 +107,9 @@ def test_transfer_recording(in_recorded, out_recorded, exp_recorded):
 
 
 def test_transfer_sides():
-    """Transfer in and out have correct balances"""
+    """
+    Transfer in and out have correct balances
+    """
     amount = Decimal('1211.21')
     txdate = date(2015, 2, 5)
     tx = Transfer(amount, txdate)
