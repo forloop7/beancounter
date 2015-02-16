@@ -1,6 +1,5 @@
 from datetime import date
 
-# TODO: recorded_balance for transfers
 
 class Transaction:
     """
@@ -100,6 +99,10 @@ class TransferSide:
         """Date the Transfer was recorded by bank on this side"""
         return self._recorded
 
+    def record(self, recorded_date):
+        """Records the transfer on this side"""
+        self._recorded = recorded_date
+
 
 class TransferIn(TransferSide):
     """
@@ -138,8 +141,8 @@ class Transfer(Transaction):
         """
         super().__init__(amount, tx_date, entered, recorded=None)
 
-        self._in = TransferIn(self, in_recorded)
         self._out = TransferOut(self, out_recorded)
+        self._in = TransferIn(self, in_recorded)
 
     def incoming(self):
         """Incoming side of the Transfer"""

@@ -1,2 +1,2 @@
 from beancounter.basics.account import Account
-from beancounter.basics.transaction import Bill, Deposit, Transfer
+from beancounter.basics.transaction import Bill, Deposit, Transfer, TransferOut, TransferIn

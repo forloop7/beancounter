@@ -100,13 +100,13 @@ def test_transfer_creation_default():
     assert tx.incoming().recorded() is None
 
 
-@pytest.mark.parametrize('in_recorded,out_recorded,exp_recorded',
+@pytest.mark.parametrize('out_recorded,in_recorded,exp_recorded',
                          [(None, None, None),
                           (date.today(), None, None),
                           (None, date.today(), None),
                           (date(2015, 1, 1), date(2015, 5, 5), date(2015, 5, 5)),
                           (date(2015, 4, 4), date(2015, 2, 2), date(2015, 4, 4))])
-def test_transfer_recording(in_recorded, out_recorded, exp_recorded):
+def test_transfer_recording(out_recorded, in_recorded, exp_recorded):
     """
     Transfers are recorded when both sides are recorded
     """
@@ -119,13 +119,19 @@ def test_transfer_recording(in_recorded, out_recorded, exp_recorded):
     assert tx.recorded() == exp_recorded
 
 
-def test_transfer_sides():
+@pytest.mark.parametrize('out_recorded,in_recorded',
+                         [(None, None),
+                          (date.today(), None),
+                          (None, date.today()),
+                          (date(2015, 4, 2), date(2015, 5, 4)),
+                          (date(2015, 12, 4), date(2015, 11, 2))])
+def test_transfer_sides(out_recorded, in_recorded):
     """
     Transfer in and out have correct balances
     """
     amount = Decimal('1211.21')
     txdate = date(2015, 2, 5)
-    tx = Transfer(amount, txdate)
+    tx = Transfer(amount, txdate, date.today(), out_recorded, in_recorded)
     inc = tx.incoming()
     out = tx.outgoing()
 
@@ -134,3 +140,36 @@ def test_transfer_sides():
     assert tx.entered() == inc.entered() == out.entered()
     assert tx.amount() == inc.balance_change() == -out.balance_change()
 
+    assert out.is_recorded() == (out_recorded is not None)
+    assert out.recorded() == out_recorded
+    assert inc.is_recorded() == (in_recorded is not None)
+    assert inc.recorded() == in_recorded
+
+
+@pytest.mark.parametrize('out_recorded,in_recorded',
+                         [(None, None),
+                          (date.today(), None),
+                          (None, date.today()),
+                          (date(2015, 1, 1), date(2015, 5, 5)),
+                          (date(2015, 4, 4), date(2015, 2, 2))])
+def test_transfer_side_recording(out_recorded, in_recorded):
+    """
+    Each side of a transfer can be recorded individually
+    """
+    tx = Transfer(Decimal('7656.00'), date(2001, 6, 17))
+    out = tx.outgoing()
+    inc = tx.incoming()
+
+    assert not tx.is_recorded()
+
+    if in_recorded:
+        inc.record(in_recorded)
+    if out_recorded:
+        out.record(out_recorded)
+
+    assert out.is_recorded() == (out_recorded is not None)
+    assert out.recorded() == out_recorded
+    assert inc.is_recorded() == (in_recorded is not None)
+    assert inc.recorded() == in_recorded
+
+    assert tx.is_recorded() == (out_recorded is not None and in_recorded is not None)
