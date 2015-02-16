@@ -39,6 +39,21 @@ def test_transaction_creation_defaults(cls):
     assert tx.recorded() is None
 
 
+@pytest.mark.parametrize("cls", [(Transaction), (Bill), (Deposit)])
+def test_transaction_equality(cls):
+    """
+    Transactions with teh same type and fields are considered equal
+    """
+    amount = Decimal('12.21')
+    txdate = date(2015, 1, 5)
+    entered = date(2015, 2, 2)
+    recorded = date(2015, 1, 8)
+    tx1 = cls(amount, txdate, entered, recorded)
+    tx2 = cls(amount, txdate, entered, recorded)
+
+    assert tx1 == tx2
+
+
 @pytest.mark.parametrize("cls,amount,exp_amount", [(Bill, Decimal('32.11'), Decimal('-32.11')),
                                                    (Deposit, Decimal('43.11'), Decimal('43.11'))])
 def test_transaction_balance_change(cls, amount, exp_amount):
@@ -69,8 +84,8 @@ def test_transfer_creation():
     amount = Decimal('42.21')
     txdate = date(2015, 3, 5)
     entered = date(2015, 3, 2)
-    in_recorded = date(2015, 3, 9)
     out_recorded = date(2015, 3, 8)
+    in_recorded = date(2015, 3, 9)
     tx = Transfer(amount, txdate, entered, out_recorded, in_recorded)
 
     assert tx.amount() == amount
@@ -98,6 +113,23 @@ def test_transfer_creation_default():
     assert tx.recorded() is None
     assert tx.outgoing().recorded() is None
     assert tx.incoming().recorded() is None
+
+
+# TODO: Negative equality tests, given the custom implementation
+
+def test_transfer_equality():
+    """
+    Transfers with the same fields are considered equal
+    """
+    amount = Decimal('42.21')
+    txdate = date(2015, 3, 5)
+    entered = date(2015, 3, 2)
+    out_recorded = date(2015, 3, 8)
+    in_recorded = date(2015, 3, 9)
+    tx1 = Transfer(amount, txdate, entered, out_recorded, in_recorded)
+    tx2 = Transfer(amount, txdate, entered, out_recorded, in_recorded)
+
+    assert tx1 == tx2
 
 
 @pytest.mark.parametrize('out_recorded,in_recorded,exp_recorded',

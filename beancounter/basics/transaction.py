@@ -22,6 +22,19 @@ class Transaction:
         self._entered = entered
         self._recorded = recorded
 
+    def __eq__(self, other):
+        """
+        Compares two Transactions, by their types and fields
+        :param other: Transaction to be compared to
+        :return: True if this and other are of the same type and have the same fields' values
+        """
+        if type(self) is type(other):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
+
+    # TODO: str() and repr()
+
     def amount(self):
         """Transaction amount"""
         return self._amount
@@ -76,20 +89,36 @@ class TransferSide:
     """
 
     def __init__(self, transfer, recorded=None):
-        self.transfer = transfer
+        self._transfer = transfer
         self._recorded = recorded
+
+    def __eq__(self, other):
+        """
+        Compares two TransferSides, by their types and fields
+        :param other: TransferSide to be compared to
+        :return: True if this and other are of the same type and have the same fields' values
+        """
+        # Note: Can't compare __dict__'s, as this compares _transaction's which causes an infinite
+        # recursion
+        if type(self) is type(other):
+            return (self.amount() == other.amount() and
+                    self.date() == other.date() and
+                    self.entered() == other.entered() and
+                    self.recorded() == other.recorded())
+        else:
+            return False
 
     def amount(self):
         """Transaction amount"""
-        return self.transfer.amount()
+        return self._transfer.amount()
 
     def date(self):
         """Transaction date"""
-        return self.transfer.date()
+        return self._transfer.date()
 
     def entered(self):
         """Date the Transaction was entered in the system"""
-        return self.transfer.entered()
+        return self._transfer.entered()
 
     def is_recorded(self):
         """Is transfer already recorded by bank on this side?"""
@@ -111,7 +140,7 @@ class TransferIn(TransferSide):
 
     def balance_change(self):
         """The actual change to the account _balance. Usually equal to amount() or -amount()."""
-        return self.transfer._amount
+        return self._transfer._amount
 
 
 class TransferOut(TransferSide):
@@ -121,7 +150,7 @@ class TransferOut(TransferSide):
 
     def balance_change(self):
         """The actual change to the account _balance. Usually equal to amount() or -amount()."""
-        return -self.transfer._amount
+        return -self._transfer._amount
 
 
 class Transfer(Transaction):
