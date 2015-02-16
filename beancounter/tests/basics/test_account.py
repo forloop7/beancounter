@@ -1,4 +1,4 @@
-from beancounter import Account
+from beancounter import Account, Deposit, Bill
 from decimal import Decimal
 from datetime import date
 
@@ -85,6 +85,34 @@ def test_bills_list():
     assert acc.balance() == 3 * amount
 
 
+def test_deposit_return():
+    """
+    Each deposit should return Deposit object
+    """
+    acc = Account('Some account')
+    amount = Decimal('150.00')
+    deposit_date = date(2014, 7, 5)
+    deposit = acc.deposit(amount, deposit_date)
+
+    assert type(deposit) == Deposit
+    assert deposit.amount() == amount
+    assert deposit.date() == deposit_date
+
+
+def test_bill_return():
+    """
+    Each bill should return Deposit object
+    """
+    acc = Account('Some account')
+    amount = Decimal('150.00')
+    bill_date = date(2014, 7, 5)
+    bill = acc.bill(amount, bill_date)
+
+    assert type(bill) == Bill
+    assert bill.amount() == amount
+    assert bill.date() == bill_date
+
+
 def test_deposit_recorded_balance():
     """
     Deposits made to an account must be recorded to update recorded_balance
@@ -98,3 +126,17 @@ def test_deposit_recorded_balance():
 
     acc.transactions()[0].record(date.today())
     assert acc.recorded_balance() == to_record
+
+
+def test_bill_recorded_balance():
+    """
+    Bills paid from an account must be recorded to update recorded_balance
+    """
+    acc = Account('Some account')
+    deposit = acc.deposit(Decimal(250.00), date(2011, 1, 1))
+    deposit.record(date(2011, 2, 2))
+    bill = acc.bill(Decimal('110.00'), date.today())
+    assert acc.recorded_balance() == Decimal('250.00') # Sanity check
+
+    bill.record(date.today())
+    assert acc.recorded_balance() == Decimal('140.00')

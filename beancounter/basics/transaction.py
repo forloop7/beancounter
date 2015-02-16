@@ -1,6 +1,6 @@
 from datetime import date
 
-# TODO: Seq
+# TODO: recorded_balance for transfers
 
 class Transaction:
     """
