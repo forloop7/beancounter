@@ -1,5 +1,5 @@
 from decimal import Decimal
-from beancounter.basics.transaction import Deposit, Bill
+from beancounter.basics.transaction import Deposit, Bill, Transfer
 
 # TODO: Add transfers to accounts
 # TODO: Record transfers on recorded_balance
@@ -46,6 +46,7 @@ class Account:
         """
         Deposit money to the account
         :param amount: amount, right? Make it Decimal
+        :return: Deposit object representing the new deposit
         """
         deposit = Deposit(amount, deposit_date)
         self.register(deposit)
@@ -55,10 +56,18 @@ class Account:
         """
         Deposit money to the account
         :param amount: amount, right? Make it Decimal
+        :return: Bill object representing the new bill
         """
         bill = Bill(amount, bill_date)
         self.register(bill)
         return bill
+
+    def transfer(self, to_account, amount, tx_date, entered=None, recorded=None,
+                 dest_recorded=None):
+        transfer = Transfer(amount, tx_date, entered, recorded, dest_recorded)
+        self.register(transfer.outgoing())
+        to_account.register(transfer.incoming())
+        return transfer
 
     def recorded_balance(self):
         """

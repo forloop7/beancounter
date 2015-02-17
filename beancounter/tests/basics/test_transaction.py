@@ -204,4 +204,5 @@ def test_transfer_side_recording(out_recorded, in_recorded):
     assert inc.is_recorded() == (in_recorded is not None)
     assert inc.recorded() == in_recorded
 
-    assert tx.is_recorded() == (out_recorded is not None and in_recorded is not None)
+    assert tx.is_recorded() == (out_recorded is not None and
+                                in_recorded is not None)
