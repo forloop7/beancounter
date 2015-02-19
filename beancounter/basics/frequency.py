@@ -1,5 +1,4 @@
 from datetime import timedelta, date
-from itertools import count
 
 
 class Frequency:
@@ -13,7 +12,7 @@ class Frequency:
         """
         pass
 
-    # TODO: range, based on iterator
+        # TODO: range, based on iterator
 
 
 class Daily(Frequency):

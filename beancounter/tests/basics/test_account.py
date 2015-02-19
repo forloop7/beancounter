@@ -8,6 +8,17 @@ def test_creation():
     """
     Basic properties of Account constructor.
     """
+    balance = Decimal('123.02')
+    acc = Account('Some account', balance)
+
+    assert acc.name() == 'Some account'
+    assert acc.balance() == balance
+
+
+def test_creation_with_defaults():
+    """
+    Basic properties of Account constructor (with default balance).
+    """
     acc = Account('Some account')
 
     assert acc.name() == 'Some account'
@@ -68,14 +79,13 @@ def test_bills_list():
     """
     Bills can be paid from an account, updating balance.
     """
-    acc = Account('Some account')
     amount = Decimal('120.00')
+    acc = Account('Some account', 4 * amount)
     bill_date = date(2014, 1, 5)
-    acc.deposit(4 * amount, date(2011, 12, 31))
     acc.bill(amount, bill_date)
-    assert len(acc.transactions()) == 2
+    assert len(acc.transactions()) == 1
 
-    bill = acc.transactions()[1]
+    bill = acc.transactions()[0]
     assert bill == Bill(amount, bill_date)
     assert acc.balance() == 3 * amount
 
@@ -96,7 +106,7 @@ def test_bill_return():
     """
     Each bill should return Bill object.
     """
-    acc = Account('Some account')
+    acc = Account('Some account', Decimal('200.00'))
     amount = Decimal('150.00')
     bill_date = date(2014, 7, 5)
     bill = acc.bill(amount, bill_date)
@@ -124,9 +134,8 @@ def test_transfer_balances():
     """
     Transferring money should update balances on both sides
     """
-    acc_from = Account('Source account')
+    acc_from = Account('Source account', Decimal('500.00'))
     acc_to = Account('Target account')
-    acc_from.deposit(Decimal('500.00'), date(2014, 1, 1)).record(date(2014, 1, 3))
     acc_from.transfer(acc_to, Decimal('100.00'), date(2014, 2, 3))
 
     assert acc_from.balance() == Decimal('400.00')
@@ -152,9 +161,7 @@ def test_bill_recorded_balance():
     """
     Bills paid from an account must be recorded to update recorded_balance.
     """
-    acc = Account('Some account')
-    deposit = acc.deposit(Decimal(250.00), date(2011, 1, 1))
-    deposit.record(date(2011, 2, 2))
+    acc = Account('Some account', Decimal('250.00'))
     bill = acc.bill(Decimal('110.00'), date.today())
     assert acc.recorded_balance() == Decimal('250.00')  # Sanity check
 
@@ -170,12 +177,11 @@ def test_transfer_prerecorded_balances(recorded_from, recorded_to):
     """
     Pre-recording a Transfer should update recorded_balance on recording side
     """
-    acc_from = Account('Source account')
-    acc_to = Account('Target account')
     balance_from = Decimal('500.00')
     balance_to = Decimal('0.00')
+    acc_from = Account('Source account', balance_from)
+    acc_to = Account('Target account')
     transfer_amount = Decimal('100.00')
-    acc_from.deposit(balance_from, date(2014, 1, 1)).record(date(2014, 1, 3))
     acc_from.transfer(acc_to, transfer_amount, date(2014, 2, 3), None, recorded_from, recorded_to)
 
     if recorded_from:
@@ -195,12 +201,11 @@ def test_transfer_recorded_balances(record_from, record_to):
     """
     Recording a TransferSide should update recorded_balance on recording side
     """
-    acc_from = Account('Source account')
-    acc_to = Account('Target account')
     balance_from = Decimal('500.00')
     balance_to = Decimal('0.00')
+    acc_from = Account('Source account', balance_from)
+    acc_to = Account('Target account')
     transfer_amount = Decimal('100.00')
-    acc_from.deposit(balance_from, date(2014, 1, 1)).record(date(2014, 1, 3))
     transfer = acc_from.transfer(acc_to, transfer_amount, date(2014, 2, 3))
 
     if record_from:

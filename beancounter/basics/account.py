@@ -8,9 +8,9 @@ class Account:
     Represents an account (a place to keep cash)
     """
 
-    def __init__(self, name):
+    def __init__(self, name, balance=Decimal('0.00')):
         self._name = name
-        self._balance = Decimal('0.00')
+        self._balance = balance
         self._initial_balance = self._balance
         self._transactions = []
 
