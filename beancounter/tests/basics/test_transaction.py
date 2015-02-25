@@ -39,6 +39,7 @@ def test_transaction_creation_defaults(cls):
     assert tx.recorded() is None
 
 
+# TODO: Test cases where transactions are almost equal
 @pytest.mark.parametrize("cls", [(Transaction), (Bill), (Deposit)])
 def test_transaction_equality(cls):
     """

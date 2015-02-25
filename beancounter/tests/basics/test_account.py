@@ -1,7 +1,8 @@
-from beancounter import Account, Deposit, Bill, Transfer
+from beancounter import Account, Deposit, Bill, Transfer, Finances
 from decimal import Decimal
 from datetime import date
 import pytest
+import pickle
 
 
 def test_creation():
@@ -25,14 +26,36 @@ def test_creation_with_defaults():
     assert acc.balance() == Decimal('0.00')
 
 
+def get_test_account(name, bill=Decimal(100.00), deposit=Decimal(150.00)):
+    """
+    Helper method, creates a test account.
+    """
+    account = Account(name)
+    account.bill(bill, date.today())
+    account.deposit(deposit, date.today())
+    return account
+
+
+# TODO: Test cases where accounts are almost equal (name, balance, recorded balance, transactions, transfers)
+def test_account_equality():
+    """
+    Accounts with the same fields are considered equal
+    """
+
+    account1 = get_test_account('account 1')
+    account2 = get_test_account('account 1')
+
+    assert account1 == account2
+
+
 def test_strings():
     """
     str(account) and repr(account).
     """
-    acc = Account('Some acc')
+    acc = get_test_account('Some acc', bill=Decimal(100.00), deposit=Decimal(150.00))
 
-    assert str(acc) == "Account(Some acc)"
-    assert repr(acc) == "Account(Some acc, balance=Decimal('0.00'))"
+    assert str(acc) == "Account('Some acc')"
+    assert repr(acc) == "Account('Some acc', balance=Decimal('50.00'))"
 
 
 def test_bill_balance():
@@ -217,3 +240,40 @@ def test_transfer_recorded_balances(record_from, record_to):
 
     assert acc_from.recorded_balance() == balance_from
     assert acc_to.recorded_balance() == balance_to
+
+
+def test_finances_creation():
+    """
+    Confirms Finances object can be created.
+    """
+    acc = get_test_account('acc 1')
+
+    assert Finances([acc]) is not None
+
+
+def test_finances_equality():
+    """
+    Confirms Finances object can be compared.
+    """
+    acc1 = get_test_account('acc 1')
+    acc2 = get_test_account('acc 1')
+
+    fin1 = Finances([acc1])
+    fin2 = Finances([acc2])
+
+    assert fin1 == fin2
+    assert fin1 is not fin2
+
+
+def test_pickling_finances():
+    """
+    Finances can be pickled and unpickled.
+    """
+    acc1 = get_test_account('acc 1')
+    fin1 = Finances([acc1])
+
+    fin_bytes = pickle.dumps(fin1)
+    fin2 = pickle.loads(fin_bytes)
+
+    assert fin1 == fin2
+    assert fin1 is not fin2

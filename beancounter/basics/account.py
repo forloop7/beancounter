@@ -1,6 +1,7 @@
 from decimal import Decimal
 from beancounter.basics.transaction import Deposit, Bill, Transfer
 
+
 # TODO: Add transfers to accounts
 # TODO: Record transfers on recorded_balance
 class Account:
@@ -27,12 +28,23 @@ class Account:
         return self._transactions
 
     def __str__(self):
-        return "Account({name})".format(name=self._name)
+        return "Account('{name}')".format(name=self._name)
 
     def __repr__(self):
-        return "Account({name}, balance={balance})".format(
+        return "Account('{name}', balance={balance})".format(
             name=self._name, balance=repr(self._balance)
         )
+
+    def __eq__(self, other):
+        """
+        Compares two Accounts, by their types and fields
+        :param other: Transaction to be compared to
+        :return: True if this and other are of the same type and have the same fields' values
+        """
+        if type(self) is type(other):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
 
     def register(self, transaction):
         """
@@ -76,3 +88,28 @@ class Account:
         """
         recorded_change = sum(t.balance_change() for t in self._transactions if t.is_recorded())
         return self._initial_balance + recorded_change
+
+
+class Finances:
+    """
+    Container class for all finances, accounts, transactions and budget.
+    """
+
+    def __init__(self, accounts=[]):
+        """
+        Constructor.
+        :param accounts: list of accounts included in the finances being tracked
+        :return: new Finances object.
+        """
+        self.accounts = accounts
+
+    def __eq__(self, other):
+        """
+        Compares two Finances, by their types and fields
+        :param other: Finances object to be compared to
+        :return: True if this and other are of the same type and have the same fields' values
+        """
+        if type(self) is type(other):
+            return self.__dict__ == other.__dict__
+        else:
+            return False
