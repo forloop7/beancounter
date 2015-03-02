@@ -45,7 +45,6 @@ def get_busy_test_account(name, logbook=None, bill=Decimal('100.00'), deposit=De
     return account
 
 
-# TODO: Test cases where accounts are almost equal (name, balance, recorded balance, transactions, transfers)
 def test_account_equality():
     """
     Accounts with the same fields are considered equal
@@ -63,6 +62,7 @@ def test_account_equality():
     assert account1 == account2
 
 
+# TODO: Test more cases where accounts are almost equal (name, balance, recorded balance, transactions, transfers)
 def test_account_inequality():
     """
     Accounts with the same fields are considered different (not equal)
@@ -282,10 +282,16 @@ def test_finances_equality():
 
     acc1 = get_busy_test_account('acc 1', logbook=fin1)
     acc2 = get_busy_test_account('acc 1', logbook=fin2)
-    # TODO: Add accounts to logbooks, etc.
-    
+
     assert fin1 == fin2
     assert fin1 is not fin2
+
+
+# TODO: Test finances inequality
+#       - different number of accounts
+#       - different account name
+#       - recorded/not recorded transaction
+#       - different transactions (amount, date, entered_date)
 
 
 def test_pickling_finances():

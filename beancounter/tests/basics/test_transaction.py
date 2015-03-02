@@ -6,7 +6,7 @@ from datetime import date
 import pytest
 
 
-# TODO: Test equality of transactions from different accounts (should be equal)
+# TODO: Test equality of transactions from different accounts (after step 2 of refactoring should NOT be equal)
 @pytest.mark.parametrize("cls", [(Transaction), (Bill), (Deposit)])
 def test_transaction_creation(cls):
     """
@@ -89,7 +89,8 @@ def test_transfer_creation():
     assert tx.incoming().recorded() == in_recorded
 
 
-# TODO: Negative equality tests, given the custom implementation
+# TODO: Negative equality tests for transfer
+
 
 def test_transfer_equality():
     """
