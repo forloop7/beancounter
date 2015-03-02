@@ -1,0 +1,11 @@
+#!bash -ue
+DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cd "$DIR/.."
+
+virtualenv env
+
+set +u
+source env/bin/activate
+set -u
+
+pip install -r requirements.txt
