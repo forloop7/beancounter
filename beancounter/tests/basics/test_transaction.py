@@ -1,4 +1,4 @@
-from test_account import get_test_account, get_test_accounts
+from .test_account import get_test_account, get_test_accounts
 from beancounter import Bill, Deposit
 from decimal import Decimal
 from datetime import date
