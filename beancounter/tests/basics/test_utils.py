@@ -1,7 +1,11 @@
-from beancounter import Account
+from beancounter import Account, Deposit, Bill
+from beancounter.basics.transaction import DepositOperation, BillOperation
 
-
-comp_exclusions = { Account: [] }
+comp_exclusions = { Account: [],
+                    Deposit: [],
+                    Bill: [],
+                    DepositOperation: ['_transaction'],
+                    BillOperation: ['_transaction'] }
 
 
 def objects_equal(obj1, obj2):
