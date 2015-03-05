@@ -54,6 +54,7 @@ class Operation:
         """Records the operation and updates the affected account."""
         if self._recorded:
             raise ValueError('This operation has already been recorded.')
+        self._recorded = recorded
         self._account.record(self)
 
 

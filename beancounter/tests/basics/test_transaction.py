@@ -47,31 +47,31 @@ def test_transaction_equality(cls):
     assert objects_equal(tx1, tx2)
 
 
-# @pytest.mark.parametrize("cls,amount,exp_amount", [(Bill, Decimal('32.11'), Decimal('-32.11')),
-#                                                    (Deposit, Decimal('43.11'), Decimal('43.11'))])
-# def test_transaction_balance_change(cls, amount, exp_amount):
-#     """
-#     Bill and Income have proper balance_change() implementations
-#     """
-#     acc = get_test_account('test 1')
-#     tx = cls(acc, amount, date.today())
-#     assert tx.balance_change() == exp_amount
-#
-#
-# @pytest.mark.parametrize("cls", [(Transaction), (Bill), (Deposit)])
-# def test_recording_transaction(cls):
-#     """
-#     Transaction can be recorded
-#     """
-#     acc = get_test_account('test 1')
-#     tx = cls(acc, Decimal('12.00'), date(2011, 3, 21))
-#     assert not tx.is_recorded()
-#
-#     tx.record(date.today())
-#     assert tx.is_recorded()
-#     assert tx.recorded() == date.today()
-#
-#
+@pytest.mark.parametrize("cls,amount,exp_amount", [(Bill, Decimal('32.11'), Decimal('-32.11')),
+                                                   (Deposit, Decimal('43.11'), Decimal('43.11'))])
+def test_transaction_balance_change(cls, amount, exp_amount):
+    """
+    Bill and Income have proper balance_change() implementations
+    """
+    logbook, acc = get_test_account('test 1')
+    tx = cls(acc, amount, date.today())
+    assert tx.operations()[0].balance_change() == exp_amount
+
+
+@pytest.mark.parametrize("cls", [(Bill), (Deposit)])
+def test_recording_transaction(cls):
+    """
+    Transaction can be recorded
+    """
+    logbook, acc = get_test_account('test 1')
+    tx = cls(acc, Decimal('12.00'), date(2011, 3, 21))
+    op = tx.operations()[0]
+    assert op.recorded() is None
+
+    op.record(date.today())
+    assert op.recorded() == date.today()
+
+
 # def test_transfer_creation():
 #     """
 #     Transfers can be created
