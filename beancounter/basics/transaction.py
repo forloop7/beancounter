@@ -118,7 +118,7 @@ class Bill(Transaction):
         super().__init__(tx_date, entered)
 
         self._amount = amount
-        self._operations.append(DepositOperation(self, account))
+        self._operations.append(BillOperation(self, account))
 
         # TODO: str() and repr()
 

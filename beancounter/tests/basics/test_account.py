@@ -48,21 +48,23 @@ def get_test_accounts(name1='test account 1', name2='test account 2', balance=De
 #
 #     assert str(acc) == "Account('Some acc')"
 #     assert repr(acc) == "Account('Some acc', balance=Decimal('50.00'))"
-#
-#
-# def test_bill_balance():
-#     """
-#     Bills can be paid from an account, updating balance.
-#     """
-#     acc = get_test_account('Some account')
-#
-#     acc.deposit(Decimal('100.00'), date.today())
-#     assert acc.balance() == Decimal('100.00')
 
 
-def test_deposit_balance2():
+def test_bill_balance():
     """
     Bills can be paid from an account, updating balance.
+    """
+    acc = get_test_account('Some account', balance=Decimal('1000.00'))
+    logbook = Finances(accounts=[acc])
+
+    logbook.bill(acc, Decimal('100.00'), date.today())
+    logbook.bill(acc, Decimal('120.00'), date.today())
+    assert acc.balance() == Decimal('780.00')
+
+
+def test_deposit_balance():
+    """
+    Deposits can be made to an account, updating balance.
     """
     acc = get_test_account('Some account')
     logbook = Finances(accounts=[acc])

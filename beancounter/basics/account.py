@@ -79,6 +79,13 @@ class Finances:
         deposit = Deposit(account, amount, tx_date, entered)
         self.enter(deposit)
 
+    def bill(self, account, amount, tx_date, entered=None, recorded=None):
+        """
+        Enters a deposit to an account into the log.
+        """
+        bill = Bill(account, amount, tx_date, entered)
+        self.enter(bill)
+
     def enter(self, transaction):
         """
         Enters a transaction into the log.
