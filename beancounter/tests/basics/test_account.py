@@ -1,4 +1,4 @@
-from beancounter import Account, Deposit, Bill, Finances
+from beancounter import Account, Deposit, Bill, Logbook
 from decimal import Decimal
 from datetime import date
 import pytest
@@ -55,7 +55,7 @@ def test_bill_balance():
     Bills can be paid from an account, updating balance.
     """
     acc = get_test_account('Some account', balance=Decimal('1000.00'))
-    logbook = Finances(accounts=[acc])
+    logbook = Logbook(accounts=[acc])
 
     logbook.bill(acc, Decimal('100.00'), date.today())
     logbook.bill(acc, Decimal('120.00'), date.today())
@@ -67,7 +67,7 @@ def test_deposit_balance():
     Deposits can be made to an account, updating balance.
     """
     acc = get_test_account('Some account')
-    logbook = Finances(accounts=[acc])
+    logbook = Logbook(accounts=[acc])
 
     logbook.deposit(acc, Decimal('100.00'), date.today())
     logbook.deposit(acc, Decimal('120.00'), date.today())
@@ -195,7 +195,7 @@ def test_deposit_balance():
 #     """
 #     Pre-recording a Transfer should update recorded_balance on recording side
 #     """
-#     logbook = Finances()
+#     logbook = Logbook()
 #     balance_from = Decimal('500.00')
 #     balance_to = Decimal('0.00')
 #     acc_from = get_test_account('Source account', logbook, balance=balance_from)
@@ -220,7 +220,7 @@ def test_deposit_balance():
 #     """
 #     Recording a TransferSide should update recorded_balance on recording side
 #     """
-#     logbook = Finances()
+#     logbook = Logbook()
 #     balance_from = Decimal('500.00')
 #     balance_to = Decimal('0.00')
 #     acc_from = get_test_account('Source account', logbook, balance_from)
@@ -241,10 +241,10 @@ def test_deposit_balance():
 #
 # def test_finances_equality():
 #     """
-#     Confirms Finances object can be compared.
+#     Confirms Logbook object can be compared.
 #     """
-#     fin1 = Finances()
-#     fin2 = Finances()
+#     fin1 = Logbook()
+#     fin2 = Logbook()
 #
 #     acc1 = get_busy_test_account('acc 1', logbook=fin1)
 #     acc2 = get_busy_test_account('acc 1', logbook=fin2)
@@ -262,9 +262,9 @@ def test_deposit_balance():
 #
 # def test_pickling_finances():
 #     """
-#     Finances can be pickled and unpickled.
+#     Logbook can be pickled and unpickled.
 #     """
-#     fin1 = Finances()
+#     fin1 = Logbook()
 #     acc1 = get_busy_test_account('acc 1', logbook=fin1)
 #
 #     fin_bytes = pickle.dumps(fin1)

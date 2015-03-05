@@ -50,7 +50,7 @@ class Account:
         self._recorded_balance += operation.balance_change()
 
 
-class Finances:
+class Logbook:
     """
     Container class for all finances, accounts, transactions and budget.
     """
