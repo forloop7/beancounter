@@ -19,13 +19,15 @@ def test_transaction_creation(cls):
     tx_date = date(2015, 1, 5)
     entered = date(2015, 2, 2)
     recorded = date(2015, 1, 8)
-    tx = cls(acc, amount, tx_date, entered, recorded)
+    tx = cls(acc, amount, tx_date, entered)
 
     assert tx._amount == amount
     assert tx.date() == tx_date
     assert tx.entered() == entered
-    assert tx._operation.account() == acc
-    assert tx._operation.recorded() == recorded
+    assert len(tx.operations()) == 1
+    op = tx.operations()[0]
+    assert op.account() == acc
+    assert op.recorded() is None
 
 
 # TODO: Test cases where transactions are almost equal
@@ -39,8 +41,8 @@ def test_transaction_equality(cls):
     txdate = date(2015, 1, 5)
     entered = date(2015, 2, 2)
     recorded = date(2015, 1, 8)
-    tx1 = cls(acc, amount, txdate, entered, recorded)
-    tx2 = cls(acc, amount, txdate, entered, recorded)
+    tx1 = cls(acc, amount, txdate, entered)
+    tx2 = cls(acc, amount, txdate, entered)
 
     assert objects_equal(tx1, tx2)
 

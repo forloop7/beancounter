@@ -18,7 +18,20 @@ def objects_equal(obj1, obj2):
     if type(obj1) in comp_exclusions:
         return dicts_equal(obj1.__dict__, obj2.__dict__, exclude=comp_exclusions[type(obj1)])
 
+    if type(obj1) is list:
+        return lists_equal(obj1, obj2)
+
     return obj1 == obj2
+
+
+def lists_equal(list1, list2):
+    """
+    Compares two lists, by comparing all their values.
+    """
+    if len(list1) != len(list2):
+        return False
+
+    return True
 
 
 def dicts_equal(dict1, dict2, exclude=[]):

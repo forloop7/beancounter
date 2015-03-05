@@ -13,23 +13,24 @@ class Transaction:
         Constructor
         :param tx_date: transaction date
         :param entered: date it was entered to the system, today() if None
-        :param recorded: date it appeared on record (confirmed)
         """
-        if not entered:
-            entered = date.today()
-
         self._date = tx_date
-        self._entered = entered
+        self._entered = entered if entered else date.today()
+        self._operations = []
 
     # TODO: str() and repr()
 
     def date(self):
-        """Transaction date"""
+        """Transaction date."""
         return self._date
 
     def entered(self):
-        """Date the Transaction was entered in the system"""
+        """Date the Transaction was entered in the system."""
         return self._entered
+
+    def operations(self):
+        """A list of operations included in this transaction."""
+        return self._operations
 
 
 class Operation:
@@ -49,15 +50,6 @@ class Operation:
         """Date the Transaction was recorded by bank"""
         return self._recorded
 
-    def record(self, recorded_date):
-        """
-        Records the operation with the date specified
-        :param recorded_date: date of recording
-        """
-        if self._recorded is None and recorded_date is not None:
-            self._account.record(self)
-        self._recorded = recorded_date
-
 
 class DepositOperation(Operation):
     """
@@ -67,8 +59,6 @@ class DepositOperation(Operation):
     def __init__(self, transaction, account, recorded=None):
         super().__init__(account)
         self._transaction = transaction
-        if recorded:
-            self.record(recorded)
 
     def balance_change(self):
         return self._transaction._amount
@@ -82,8 +72,6 @@ class BillOperation(Operation):
     def __init__(self, transaction, account, recorded=None):
         super().__init__(account)
         self._transaction = transaction
-        if recorded:
-            self.record(recorded)
 
     def balance_change(self):
         return -self._transaction._amount
@@ -96,19 +84,18 @@ class Deposit(Transaction):
     Simple transactions affect a single account with a single operation.
     """
 
-    def __init__(self, account, amount, tx_date, entered=None, recorded=None):
+    def __init__(self, account, amount, tx_date, entered=None):
         """
         Constructor
         :param account: affected account
         :param amount: transaction amount
         :param tx_date: transaction date
         :param entered: date it was entered to the system, today() if None
-        :param recorded: date it appeared on record (confirmed)
         """
         super().__init__(tx_date, entered)
 
         self._amount = amount
-        self._operation = DepositOperation(self, account, recorded)
+        self._operations.append(DepositOperation(self, account))
 
         # TODO: str() and repr()
 
@@ -120,19 +107,18 @@ class Bill(Transaction):
     Simple transactions affect a single account with a single operation.
     """
 
-    def __init__(self, account, amount, tx_date, entered=None, recorded=None):
+    def __init__(self, account, amount, tx_date, entered=None):
         """
         Constructor
         :param account: affected account
         :param amount: transaction amount
         :param tx_date: transaction date
         :param entered: date it was entered to the system, today() if None
-        :param recorded: date it appeared on record (confirmed)
         """
         super().__init__(tx_date, entered)
 
         self._amount = amount
-        self._operation = DepositOperation(self, account, recorded)
+        self._operations.append(DepositOperation(self, account))
 
         # TODO: str() and repr()
 
