@@ -84,6 +84,7 @@ class Logbook:
         """
         deposit = Deposit(account, amount, tx_date, entered)
         self.enter(deposit)
+        return deposit
 
     def bill(self, account, amount, tx_date, entered=None, recorded=None):
         """
@@ -91,6 +92,7 @@ class Logbook:
         """
         bill = Bill(account, amount, tx_date, entered)
         self.enter(bill)
+        return bill
 
     def enter(self, transaction):
         """
@@ -99,6 +101,7 @@ class Logbook:
         self._transactions.append(transaction)
         for operation in transaction.operations():
             operation.account().enter(operation)
+        return self
 
     def record():
         # TODO: implement

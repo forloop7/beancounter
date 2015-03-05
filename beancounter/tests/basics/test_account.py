@@ -112,30 +112,30 @@ def test_bills_list():
     assert acc.balance() == 3 * amount
 
 
-# def test_deposit_return():
-#     """
-#     Each deposit should return Deposit object.
-#     """
-#     acc = get_test_account('Some account')
-#     amount = Decimal('150.00')
-#     deposit_date = date(2014, 7, 5)
-#     deposit = acc.deposit(amount, deposit_date)
-#
-#     assert deposit == Deposit(acc, amount, deposit_date)
-#
-#
-# def test_bill_return():
-#     """
-#     Each bill should return Bill object.
-#     """
-#     acc = get_test_account('Some account', balance=Decimal('200.00'))
-#     amount = Decimal('150.00')
-#     bill_date = date(2014, 7, 5)
-#     bill = acc.bill(amount, bill_date)
-#
-#     assert bill == Bill(acc, amount, bill_date)
-#
-#
+def test_deposit_return():
+    """
+    Each deposit should return Deposit object.
+    """
+    logbook, acc = get_test_account('Some account')
+    amount = Decimal('150.00')
+    deposit_date = date(2014, 7, 5)
+    deposit = logbook.deposit(acc, amount, deposit_date)
+
+    assert objects_equal(deposit, Deposit(acc, amount, deposit_date))
+
+
+def test_bill_return():
+    """
+    Each bill should return Bill object.
+    """
+    logbook, acc = get_test_account('Some account', balance=Decimal('200.00'))
+    amount = Decimal('150.00')
+    bill_date = date(2014, 7, 5)
+    bill = logbook.bill(acc, amount, bill_date)
+
+    assert objects_equal(bill, Bill(acc, amount, bill_date))
+
+
 # def test_transfer_return():
 #     """
 #     Transfering creates proper Transfer object.
