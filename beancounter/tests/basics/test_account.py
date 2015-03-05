@@ -23,7 +23,7 @@ def get_test_account(name='test account', balance=Decimal('0.00'), logbook=None)
     """
     if not logbook:
         logbook = Logbook()
-    return (logbook, logbook.add_account(name, balance=balance))
+    return logbook, logbook.add_account(name, balance=balance)
 
 
 def get_test_accounts(name1='test account 1', name2='test account 2', balance=Decimal('0.00'), 
@@ -31,8 +31,8 @@ def get_test_accounts(name1='test account 1', name2='test account 2', balance=De
     """
     Helper method, creates a test account.
     """
-    (logbook, acc1) = get_test_account(name1, balance=balance, logbook=logbook)
-    (logbook, acc2) = get_test_account(name1, balance=balance, logbook=logbook)
+    logbook, acc1 = get_test_account(name1, balance=balance, logbook=logbook)
+    logbook, acc2 = get_test_account(name1, balance=balance, logbook=logbook)
     return (logbook, acc1, acc2)
 
 
@@ -50,7 +50,7 @@ def test_strings():
     """
     str(account) and repr(account).
     """
-    (_, acc) = get_busy_test_account('Some acc', deposit=Decimal(150.00), bill=Decimal(100.00))
+    _, acc = get_busy_test_account('Some acc', deposit=Decimal(150.00), bill=Decimal(100.00))
 
     assert str(acc) == "Account('Some acc')"
     assert repr(acc) == "Account('Some acc', balance=Decimal('50.00'))"
@@ -243,32 +243,32 @@ def test_bill_recorded_balance():
 #     assert acc_to.recorded_balance() == balance_to
 #
 #
-def test_finances_equality():
+def test_logbook_equality():
     """
     Confirms Logbook object can be compared.
     """
-    fin1, acc1 = get_busy_test_account('acc 1')
-    fin2, acc2 = get_busy_test_account('acc 1')
+    logbook1, acc1 = get_busy_test_account('acc 1')
+    logbook2, acc2 = get_busy_test_account('acc 1')
 
-    assert objects_equal(fin1, fin2)
-    assert fin1 is not fin2
+    assert objects_equal(logbook1, logbook2)
+    assert logbook1 is not logbook2
 
 
-# TODO: Test finances inequality
+# TODO: Test logbook inequality
 #       - different number of accounts
 #       - different account name
 #       - recorded/not recorded transaction
 #       - different transactions (amount, date, entered_date)
 
 
-def test_pickling_finances():
+def test_pickling_logbook():
     """
     Logbook can be pickled and unpickled.
     """
-    fin1, acc1 = get_busy_test_account('acc 1')
+    logbook1, acc1 = get_busy_test_account('acc 1')
 
-    fin_bytes = pickle.dumps(fin1)
-    fin2 = pickle.loads(fin_bytes)
+    logbook_bytes = pickle.dumps(logbook1)
+    logbook2 = pickle.loads(logbook_bytes)
 
-    assert objects_equal(fin1, fin2)
-    assert fin1 is not fin2
+    assert objects_equal(logbook1, logbook2)
+    assert logbook1 is not logbook2

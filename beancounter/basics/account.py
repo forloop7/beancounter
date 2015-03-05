@@ -52,14 +52,12 @@ class Account:
 
 class Logbook:
     """
-    Container class for all finances, accounts, transactions and budget.
+    Container class for all accounts, transactions and budget.
     """
 
     def __init__(self):
         """
-        Constructor.
-        :param accounts: list of accounts included in the finances being tracked
-        :return: new Finances object.
+        Constructor. Returns a new Logbook object.
         """
         self._accounts = []
         self._transactions = []
