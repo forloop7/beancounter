@@ -50,6 +50,12 @@ class Operation:
         """Date the Transaction was recorded by bank"""
         return self._recorded
 
+    def record(self, recorded):
+        """Records the operation and updates the affected account."""
+        if self._recorded:
+            raise ValueError('This operation has already been recorded.')
+        self._account.record(self)
+
 
 class DepositOperation(Operation):
     """

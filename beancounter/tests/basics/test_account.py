@@ -164,33 +164,33 @@ def test_bill_return():
 #     assert acc_to.balance() == Decimal('100.00')
 #
 #
-# def test_deposit_recorded_balance():
-#     """
-#     Deposits made to an account must be recorded to update recorded_balance.
-#     """
-#     acc = get_test_account('Some account')
-#
-#     to_record = Decimal('100.00')
-#     acc.deposit(to_record, date.today())
-#     acc.deposit(Decimal('120.00'), date.today())
-#     assert acc.recorded_balance() == Decimal('0.00')
-#
-#     acc.transactions()[0].record(date.today())
-#     assert acc.recorded_balance() == to_record
-#
-#
-# def test_bill_recorded_balance():
-#     """
-#     Bills paid from an account must be recorded to update recorded_balance.
-#     """
-#     acc = get_test_account('Some account', balance=Decimal('250.00'))
-#     bill = acc.bill(Decimal('110.00'), date.today())
-#     assert acc.recorded_balance() == Decimal('250.00')  # Sanity check
-#
-#     bill.record(date.today())
-#     assert acc.recorded_balance() == Decimal('140.00')
-#
-#
+def test_deposit_recorded_balance():
+    """
+    Deposits made to an account must be recorded to update recorded_balance.
+    """
+    logbook, acc = get_test_account('Some account')
+
+    amt_to_record = Decimal('100.00')
+    to_record = logbook.deposit(acc, amt_to_record, date.today())
+    logbook.deposit(acc, Decimal('120.00'), date.today())
+    assert acc.recorded_balance() == Decimal('0.00')
+
+    to_record.operations()[0].record(date.today())
+    assert acc.recorded_balance() == amt_to_record
+
+
+def test_bill_recorded_balance():
+    """
+    Bills paid from an account must be recorded to update recorded_balance.
+    """
+    logbook, acc = get_test_account('Some account', balance=Decimal('250.00'))
+    bill = logbook.bill(acc, Decimal('110.00'), date.today())
+    assert acc.recorded_balance() == Decimal('250.00')  # Sanity check
+
+    bill.operations()[0].record(date.today())
+    assert acc.recorded_balance() == Decimal('140.00')
+
+
 # @pytest.mark.parametrize('recorded_from,recorded_to', [(None, None),
 #                                                        (None, date.today()),
 #                                                        (date.today(), None),

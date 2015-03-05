@@ -102,7 +102,3 @@ class Logbook:
         for operation in transaction.operations():
             operation.account().enter(operation)
         return self
-
-    def record():
-        # TODO: implement
-        pass
