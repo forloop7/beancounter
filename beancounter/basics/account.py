@@ -55,20 +55,20 @@ class Logbook:
     Container class for all finances, accounts, transactions and budget.
     """
 
-    def __init__(self, accounts=[], transactions=[]):
+    def __init__(self):
         """
         Constructor.
         :param accounts: list of accounts included in the finances being tracked
         :return: new Finances object.
         """
-        self.accounts = accounts
-        self.transactions = transactions
+        self.accounts = []
+        self.transactions = []
 
     def add_account(self, name, balance=Decimal('0.00')):
         """
         TODO: docstring :-)
         """
-        account = Account(self, name, balance=balance)
+        account = Account(name, balance=balance)
         self.accounts.append(account)
         return account
 

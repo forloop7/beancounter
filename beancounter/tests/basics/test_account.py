@@ -16,46 +16,50 @@ def test_creation():
     assert acc.balance() == balance
 
 
-def get_test_account(name='test account', balance=Decimal('0.00')):
+def get_test_account(name='test account', balance=Decimal('0.00'), logbook=None):
     """
     Helper method, creates a test account.
     """
-    return Account(name, balance=balance)
+    if not logbook:
+        logbook = Logbook()
+    return (logbook, logbook.add_account(name, balance=balance))
 
 
-def get_test_accounts(name1='test account 1', name2='test account 2', balance=Decimal('0.00')):
+def get_test_accounts(name1='test account 1', name2='test account 2', balance=Decimal('0.00'), 
+                      logbook=None):
     """
     Helper method, creates a test account.
     """
-    return (get_test_account(name1, balance=balance), get_test_account(name2, balance=balance))
+    (logbook, acc1) = get_test_account(name1, balance=balance, logbook=logbook)
+    (logbook, acc2) = get_test_account(name1, balance=balance, logbook=logbook)
+    return (logbook, acc1, acc2)
 
 
-# def get_busy_test_account(name, bill=Decimal('100.00'), deposit=Decimal('150.00')):
-#     """
-#     Helper method, creates a test account.
-#     """
-#     account = get_test_account(name)
-#     account.bill(bill, date.today())
-#     account.deposit(deposit, date.today())
-#     return account
-#
-#
-# def test_strings():
-#     """
-#     str(account) and repr(account).
-#     """
-#     acc = get_busy_test_account('Some acc', deposit=Decimal(150.00), bill=Decimal(100.00))
-#
-#     assert str(acc) == "Account('Some acc')"
-#     assert repr(acc) == "Account('Some acc', balance=Decimal('50.00'))"
+def get_busy_test_account(name, bill=Decimal('100.00'), deposit=Decimal('150.00'), logbook=None):
+    """
+    Helper method, creates a test account.
+    """
+    (logbook, account) = get_test_account(name, logbook=logbook)
+    logbook.bill(account, bill, date.today())
+    logbook.deposit(account, deposit, date.today())
+    return (logbook, account)
+
+
+def test_strings():
+    """
+    str(account) and repr(account).
+    """
+    (_, acc) = get_busy_test_account('Some acc', deposit=Decimal(150.00), bill=Decimal(100.00))
+
+    assert str(acc) == "Account('Some acc')"
+    assert repr(acc) == "Account('Some acc', balance=Decimal('50.00'))"
 
 
 def test_bill_balance():
     """
     Bills can be paid from an account, updating balance.
     """
-    acc = get_test_account('Some account', balance=Decimal('1000.00'))
-    logbook = Logbook(accounts=[acc])
+    logbook, acc = get_test_account('Some account', balance=Decimal('1000.00'))
 
     logbook.bill(acc, Decimal('100.00'), date.today())
     logbook.bill(acc, Decimal('120.00'), date.today())
@@ -66,8 +70,7 @@ def test_deposit_balance():
     """
     Deposits can be made to an account, updating balance.
     """
-    acc = get_test_account('Some account')
-    logbook = Logbook(accounts=[acc])
+    logbook, acc = get_test_account('Some account')
 
     logbook.deposit(acc, Decimal('100.00'), date.today())
     logbook.deposit(acc, Decimal('120.00'), date.today())
