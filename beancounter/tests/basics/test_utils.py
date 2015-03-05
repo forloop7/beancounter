@@ -1,7 +1,8 @@
-from beancounter import Account, Deposit, Bill
+from beancounter import Account, Deposit, Bill, Logbook
 from beancounter.basics.transaction import DepositOperation, BillOperation
 
-comp_exclusions = { Account: [],
+comp_exclusions = { Logbook: [],
+                    Account: [],
                     Deposit: [],
                     Bill: [],
                     DepositOperation: ['_transaction'],
