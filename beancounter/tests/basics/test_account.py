@@ -1,4 +1,5 @@
 from beancounter import Account, Deposit, Bill, Logbook
+from .test_utils import objects_equal
 from decimal import Decimal
 from datetime import date
 import pytest
@@ -77,40 +78,40 @@ def test_deposit_balance():
     assert acc.balance() == Decimal('220.00')
 
 
-# def test_deposits_list():
-#     """
-#     Deposits can be made to an account, updating balance.
-#     """
-#     acc = get_test_account('Some account')
-#     amount = Decimal('120.00')
-#     deposit1_date = date(2014, 1, 5)
-#     deposit2_date = date(2014, 2, 5)
-#     acc.deposit(amount, deposit1_date)
-#     acc.deposit(2 * amount, deposit2_date)
-#     assert len(acc.transactions()) == 2
-#
-#     deposit1 = acc.transactions()[0]
-#     deposit2 = acc.transactions()[1]
-#     assert deposit1 == Deposit(acc, amount, deposit1_date)
-#     assert deposit2 == Deposit(acc, 2 * amount, deposit2_date)
-#     assert acc.balance() == 3 * amount
-#
-#
-# def test_bills_list():
-#     """
-#     Bills can be paid from an account, updating balance.
-#     """
-#     amount = Decimal('120.00')
-#     acc = get_test_account('Some account', balance=4*amount)
-#     bill_date = date(2014, 1, 5)
-#     acc.bill(amount, bill_date)
-#     assert len(acc.transactions()) == 1
-#
-#     bill = acc.transactions()[0]
-#     assert bill == Bill(acc, amount, bill_date)
-#     assert acc.balance() == 3 * amount
-#
-#
+def test_deposits_list():
+    """
+    Deposits can be made to an account, updating balance.
+    """
+    logbook, acc = get_test_account('Some account')
+    amount = Decimal('120.00')
+    deposit1_date = date(2014, 1, 5)
+    deposit2_date = date(2014, 2, 5)
+    logbook.deposit(acc, amount, deposit1_date)
+    logbook.deposit(acc, 2 * amount, deposit2_date)
+    assert len(logbook.transactions()) == 2
+
+    deposit1 = logbook.transactions()[0]
+    deposit2 = logbook.transactions()[1]
+    assert objects_equal(deposit1, Deposit(acc, amount, deposit1_date))
+    assert objects_equal(deposit2, Deposit(acc, 2 * amount, deposit2_date))
+    assert acc.balance() == 3 * amount
+
+
+def test_bills_list():
+    """
+    Bills can be paid from an account, updating balance.
+    """
+    amount = Decimal('120.00')
+    logbook, acc = get_test_account('Some account', balance=4*amount)
+    bill_date = date(2014, 1, 5)
+    logbook.bill(acc, amount, bill_date)
+    assert len(logbook.transactions()) == 1
+
+    bill = logbook.transactions()[0]
+    assert objects_equal(bill, Bill(acc, amount, bill_date))
+    assert acc.balance() == 3 * amount
+
+
 # def test_deposit_return():
 #     """
 #     Each deposit should return Deposit object.

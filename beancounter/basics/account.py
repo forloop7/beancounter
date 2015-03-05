@@ -61,15 +61,21 @@ class Logbook:
         :param accounts: list of accounts included in the finances being tracked
         :return: new Finances object.
         """
-        self.accounts = []
-        self.transactions = []
+        self._accounts = []
+        self._transactions = []
+
+    def accounts(self):
+        return self._accounts
+
+    def transactions(self):
+        return self._transactions
 
     def add_account(self, name, balance=Decimal('0.00')):
         """
         TODO: docstring :-)
         """
         account = Account(name, balance=balance)
-        self.accounts.append(account)
+        self._accounts.append(account)
         return account
 
     def deposit(self, account, amount, tx_date, entered=None, recorded=None):
@@ -90,7 +96,7 @@ class Logbook:
         """
         Enters a transaction into the log.
         """
-        self.transactions.append(transaction)
+        self._transactions.append(transaction)
         for operation in transaction.operations():
             operation.account().enter(operation)
 
