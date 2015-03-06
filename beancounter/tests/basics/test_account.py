@@ -187,33 +187,31 @@ def test_transfer_balances():
     assert acc_to.balance() == Decimal('100.00')
 
 
-# @pytest.mark.parametrize('record_from,record_to', [(False, False),
-#                                                    (False, True),
-#                                                    (True, False),
-#                                                    (True, True)])
-# def test_transfer_recorded_balances(record_from, record_to):
-#     """
-#     Recording a TransferSide should update recorded_balance on recording side
-#     """
-#     logbook = Logbook()
-#     balance_from = Decimal('500.00')
-#     balance_to = Decimal('0.00')
-#     acc_from = get_test_account('Source account', logbook, balance_from)
-#     acc_to = get_test_account('Target account', logbook)
-#     transfer_amount = Decimal('100.00')
-#     transfer = acc_from.transfer(acc_to, transfer_amount, date(2014, 2, 3))
-#
-#     if record_from:
-#         balance_from -= transfer_amount
-#         transfer.outgoing().record(date.today())
-#     if record_to:
-#         balance_to += transfer_amount
-#         transfer.incoming().record(date.today())
-#
-#     assert acc_from.recorded_balance() == balance_from
-#     assert acc_to.recorded_balance() == balance_to
-#
-#
+@pytest.mark.parametrize('record_from,record_to', [(False, False),
+                                                   (False, True),
+                                                   (True, False),
+                                                   (True, True)])
+def test_transfer_recorded_balances(record_from, record_to):
+    """
+    Recording a TransferSide should update recorded_balance on recording side
+    """
+    balance_from = Decimal('500.00')
+    balance_to = Decimal('0.00')
+    logbook, acc_from, acc_to = get_test_accounts(balance1=balance_from)
+    transfer_amount = Decimal('100.00')
+    transfer = logbook.transfer(acc_from, acc_to, transfer_amount, date(2014, 2, 3))
+
+    if record_from:
+        balance_from -= transfer_amount
+        transfer.outgoing().record(date.today())
+    if record_to:
+        balance_to += transfer_amount
+        transfer.incoming().record(date.today())
+
+    assert acc_from.recorded_balance() == balance_from
+    assert acc_to.recorded_balance() == balance_to
+
+
 def test_logbook_equality():
     """
     Confirms Logbook object can be compared.
