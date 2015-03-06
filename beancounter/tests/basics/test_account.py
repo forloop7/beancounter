@@ -1,4 +1,4 @@
-from beancounter import Account, Deposit, Bill, Logbook
+from beancounter import Account, Deposit, Bill, Transfer, Logbook
 from .test_utils import objects_equal
 from decimal import Decimal
 from datetime import date
@@ -26,13 +26,13 @@ def get_test_account(name='test account', balance=Decimal('0.00'), logbook=None)
     return logbook, logbook.add_account(name, balance=balance)
 
 
-def get_test_accounts(name1='test account 1', name2='test account 2', balance=Decimal('0.00'), 
-                      logbook=None):
+def get_test_accounts(name1='test account 1', name2='test account 2', 
+                      balance1=Decimal('0.00'), balance2=Decimal('0.00'), logbook=None):
     """
     Helper method, creates a test account.
     """
-    logbook, acc1 = get_test_account(name1, balance=balance, logbook=logbook)
-    logbook, acc2 = get_test_account(name1, balance=balance, logbook=logbook)
+    logbook, acc1 = get_test_account(name1, balance=balance1, logbook=logbook)
+    logbook, acc2 = get_test_account(name2, balance=balance2, logbook=logbook)
     return (logbook, acc1, acc2)
 
 
@@ -163,59 +163,30 @@ def test_bill_recorded_balance():
     assert acc.recorded_balance() == Decimal('140.00')
 
 
-# def test_transfer_return():
-#     """
-#     Transfering creates proper Transfer object.
-#     """
-#     acc_from = get_test_account('Source account')
-#     acc_to = get_test_account('Target account')
-#     amount = Decimal('4112.11')
-#     tx_date = date(2001, 8, 10)
-#     entered = date(2001, 8, 12)
-#     out_recorded = date(2001, 8, 14)
-#     in_recorded = date(2001, 8, 19)
-#     transfer = acc_from.transfer(acc_to, amount, tx_date, entered, out_recorded, in_recorded)
-#
-#     assert transfer == Transfer(acc_from, acc_to, amount, tx_date, entered, out_recorded, in_recorded)
-#
-#
-# def test_transfer_balances():
-#     """
-#     Transferring money should update balances on both sides
-#     """
-#     acc_from = get_test_account('Source account', balance=Decimal('500.00'))
-#     acc_to = get_test_account('Target account')
-#     acc_from.transfer(acc_to, Decimal('100.00'), date(2014, 2, 3))
-#
-#     assert acc_from.balance() == Decimal('400.00')
-#     assert acc_to.balance() == Decimal('100.00')
-#
-#
-# @pytest.mark.parametrize('recorded_from,recorded_to', [(None, None),
-#                                                        (None, date.today()),
-#                                                        (date.today(), None),
-#                                                        (date.today(), date.today())])
-# def test_transfer_prerecorded_balances(recorded_from, recorded_to):
-#     """
-#     Pre-recording a Transfer should update recorded_balance on recording side
-#     """
-#     logbook = Logbook()
-#     balance_from = Decimal('500.00')
-#     balance_to = Decimal('0.00')
-#     acc_from = get_test_account('Source account', logbook, balance=balance_from)
-#     acc_to = get_test_account('Target account', logbook)
-#     transfer_amount = Decimal('100.00')
-#     acc_from.transfer(acc_to, transfer_amount, date(2014, 2, 3), None, recorded_from, recorded_to)
-#
-#     if recorded_from:
-#         balance_from -= transfer_amount
-#     if recorded_to:
-#         balance_to += transfer_amount
-#
-#     assert acc_from.recorded_balance() == balance_from
-#     assert acc_to.recorded_balance() == balance_to
-#
-#
+def test_transfer_return():
+    """
+    Transfering creates proper Transfer object.
+    """
+    logbook, acc_from, acc_to = get_test_accounts()
+    amount = Decimal('4112.11')
+    tx_date = date(2001, 8, 10)
+    entered = date(2001, 8, 12)
+    transfer = logbook.transfer(acc_from, acc_to, amount, tx_date, entered)
+
+    assert objects_equal(transfer, Transfer(acc_from, acc_to, amount, tx_date, entered))
+
+
+def test_transfer_balances():
+    """
+    Transferring money should update balances on both sides
+    """
+    logbook, acc_from, acc_to = get_test_accounts(balance1=Decimal('500.00'))
+    transfer = logbook.transfer(acc_from, acc_to, Decimal('100.00'), date(2014, 2, 3))
+
+    assert acc_from.balance() == Decimal('400.00')
+    assert acc_to.balance() == Decimal('100.00')
+
+
 # @pytest.mark.parametrize('record_from,record_to', [(False, False),
 #                                                    (False, True),
 #                                                    (True, False),

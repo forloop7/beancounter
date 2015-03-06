@@ -92,6 +92,14 @@ class Logbook:
         self.enter(bill)
         return bill
 
+    def transfer(self, account_from, account_to, amount, tx_date, entered=None, recorded=None):
+        """
+        Enters a deposit to an account into the log.
+        """
+        transfer = Transfer(account_from, account_to, amount, tx_date, entered)
+        self.enter(transfer)
+        return transfer
+
     def enter(self, transaction):
         """
         Enters a transaction into the log.
