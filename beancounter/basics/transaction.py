@@ -38,7 +38,8 @@ class Operation:
     Represents an atomic operation performed on a given account.
     """
 
-    def __init__(self, account):
+    def __init__(self, transaction, account):
+        self._transaction = transaction
         self._account = account
         self._recorded = None
 
@@ -63,10 +64,6 @@ class DepositOperation(Operation):
     Represents a deposit operation
     """
 
-    def __init__(self, transaction, account, recorded=None):
-        super().__init__(account)
-        self._transaction = transaction
-
     def balance_change(self):
         return self._transaction._amount
 
@@ -75,10 +72,6 @@ class BillOperation(Operation):
     """
     Represents a bill operation
     """
-
-    def __init__(self, transaction, account, recorded=None):
-        super().__init__(account)
-        self._transaction = transaction
 
     def balance_change(self):
         return -self._transaction._amount
@@ -130,66 +123,24 @@ class Bill(Transaction):
         # TODO: str() and repr()
 
 
-class TransferSide:
-    """
-    Either incoming or outgoing side of a transfer
-    """
-
-    def __init__(self, transfer, recorded=None):
-        self._transfer = transfer
-        self._recorded = recorded
-
-    def amount(self):
-        """Transaction amount"""
-        return self._transfer.amount()
-
-    def date(self):
-        """Transaction date"""
-        return self._transfer.date()
-
-    def entered(self):
-        """Date the Transaction was entered in the system"""
-        return self._transfer.entered()
-
-    def is_recorded(self):
-        """Is transfer already recorded by bank on this side?"""
-        return True if self._recorded else False
-
-    def recorded(self):
-        """Date the Transfer was recorded by bank on this side"""
-        return self._recorded
-
-    def record(self, recorded_date):
-        """Records the transfer on this side"""
-        self._recorded = recorded_date
-
-
-class TransferIn(TransferSide):
+class TransferIn(Operation):
     """
     Represents an incoming side of a Transfer
     """
-
-    def account(self):
-        """The account being affected."""
-        return self._transfer._account_to
 
     def balance_change(self):
         """The actual change to the account_balance. Usually equal to amount() or -amount()."""
-        return self._transfer._amount
+        return self._transaction._amount
 
 
-class TransferOut(TransferSide):
+class TransferOut(Operation):
     """
     Represents an incoming side of a Transfer
     """
 
-    def account(self):
-        """The account being affected."""
-        return self._transfer._account
-
     def balance_change(self):
         """The actual change to the account _balance. Usually equal to amount() or -amount()."""
-        return -self._transfer._amount
+        return -self._transaction._amount
 
 
 class Transfer(Transaction):
@@ -197,7 +148,7 @@ class Transfer(Transaction):
     Represents a transfer between accounts
     """
 
-    def __init__(self, account_from, account_to, amount, tx_date, entered=None, out_recorded=None, in_recorded=None):
+    def __init__(self, account_from, account_to, amount, tx_date, entered=None):
         """
         Constructor
         :param amount: transfer amount
@@ -207,11 +158,17 @@ class Transfer(Transaction):
         :param in_recorded: date the transfer was recorded at destination bank
         :return:
         """
-        super().__init__(account_from, amount, tx_date, entered, recorded=None)
+        super().__init__(tx_date, entered)
 
-        self._out = TransferOut(self, out_recorded)
-        self._in = TransferIn(self, in_recorded)
-        self._account_to = account_to
+        self._amount = amount
+        self._out = TransferOut(self, account_from)
+        self._in = TransferIn(self, account_to)
+        self._operations.append(self._out)
+        self._operations.append(self._in)
+
+    def amount(self):
+        """The transfer amount."""
+        return self._amount
 
     def incoming(self):
         """Incoming side of the Transfer"""
@@ -220,10 +177,6 @@ class Transfer(Transaction):
     def outgoing(self):
         """Outgoing side of the Transfer"""
         return self._out
-
-    def is_recorded(self):
-        """Is this transfer recorded by banks on both sides?"""
-        return self._in.is_recorded() and self._out.is_recorded()
 
     def recorded(self):
         """Date this Transfer was recorded by both banks"""

@@ -1,6 +1,6 @@
 from .test_account import get_test_account, get_test_accounts
 from .test_utils import objects_equal
-from beancounter import Bill, Deposit
+from beancounter import Bill, Deposit, Transfer
 from decimal import Decimal
 from datetime import date
 import pytest
@@ -72,46 +72,46 @@ def test_recording_transaction(cls):
     assert op.recorded() == date.today()
 
 
-# def test_transfer_creation():
-#     """
-#     Transfers can be created
-#     """
-#     acc1, acc2 = get_test_accounts()
-#     amount = Decimal('42.21')
-#     txdate = date(2015, 3, 5)
-#     entered = date(2015, 3, 2)
-#     out_recorded = date(2015, 3, 8)
-#     in_recorded = date(2015, 3, 9)
-#     tx = Transfer(acc1, acc2, amount, txdate, entered, out_recorded, in_recorded)
-#
-#     assert tx.amount() == amount
-#     assert tx.date() == txdate
-#     assert tx.entered() == entered
-#     assert tx.is_recorded()
-#     assert tx.recorded() == max(in_recorded, out_recorded)
-#     assert tx.outgoing().recorded() == out_recorded
-#     assert tx.incoming().recorded() == in_recorded
-#
-#
-# # TODO: Negative equality tests for transfer
-#
-#
-# def test_transfer_equality():
-#     """
-#     Transfers with the same fields are considered equal
-#     """
-#     acc1, acc2 = get_test_accounts()
-#     amount = Decimal('42.21')
-#     txdate = date(2015, 3, 5)
-#     entered = date(2015, 3, 2)
-#     out_recorded = date(2015, 3, 8)
-#     in_recorded = date(2015, 3, 9)
-#     tx1 = Transfer(acc1, acc2, amount, txdate, entered, out_recorded, in_recorded)
-#     tx2 = Transfer(acc1, acc2, amount, txdate, entered, out_recorded, in_recorded)
-#
-#     assert tx1 == tx2
-#
-#
+def test_transfer_creation():
+    """
+    Transfers can be created
+    """
+    logbook, acc_from, acc_to = get_test_accounts()
+    amount = Decimal('42.21')
+    txdate = date(2015, 3, 5)
+    entered = date(2015, 3, 2)
+    tx = Transfer(acc_from, acc_to, amount, txdate, entered)
+
+    assert tx.amount() == amount
+    assert tx.date() == txdate
+    assert tx.entered() == entered
+    assert tx.recorded() is None
+    assert tx.outgoing().recorded() is None
+    assert tx.incoming().recorded() is None
+
+
+# TODO: Negative equality tests for transfer
+
+
+def test_transfer_equality():
+    """
+    Transfers with the same fields are considered equal
+    """
+    logbook, acc1, acc2 = get_test_accounts()
+    amount = Decimal('42.21')
+    txdate = date(2015, 3, 5)
+    entered = date(2015, 3, 2)
+    out_recorded = date(2015, 3, 8)
+    in_recorded = date(2015, 3, 9)
+    tx1 = Transfer(acc1, acc2, amount, txdate, entered)
+    tx2 = Transfer(acc1, acc2, amount, txdate, entered)
+    tx1.outgoing().record(out_recorded)
+    tx2.outgoing().record(out_recorded)
+    tx1.incoming().record(in_recorded)
+    tx2.incoming().record(in_recorded)
+    assert objects_equal(tx1, tx2)
+
+
 # @pytest.mark.parametrize('out_recorded,in_recorded,exp_recorded',
 #                          [(None, None, None),
 #                           (date.today(), None, None),
