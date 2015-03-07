@@ -1,167 +1,146 @@
 from datetime import date
-from beancounter.basics.utils import are_equal
 
 
 class Transaction:
     """
-    Base class for all recorded transactions
+    Base class for all recorded transactions.
+
+    A transaction consists of one or more operations.
     """
 
-    def __init__(self, account, amount, tx_date, entered=None, recorded=None):
+    def __init__(self, tx_date, entered=None):
         """
         Constructor
-        :param amount: transaction amount (Decimal)
-        :param tx_date: transaction date 
+        :param tx_date: transaction date
         :param entered: date it was entered to the system, today() if None
-        :param recorded: date it appeared on record (confirmed)
         """
-        if not entered:
-            entered = date.today()
-
-        self._account = account
-        self._amount = amount
         self._date = tx_date
-        self._entered = entered
-        self._recorded = recorded
-
-    def __eq__(self, other):
-        """
-        Compares two Transactions, by their types and fields
-        :param other: Transaction to be compared to
-        :return: True if this and other are of the same type and have the same fields' values
-        """
-        if type(self) is type(other):
-            return are_equal(self.__dict__, other.__dict__, exclude=['_account'])
-        else:
-            return False
+        self._entered = entered if entered else date.today()
+        self._operations = []
 
     # TODO: str() and repr()
 
-    def account(self):
-        """Transaction account"""
-        return self._account
-
-    def amount(self):
-        """Transaction amount"""
-        return self._amount
-
     def date(self):
-        """Transaction date"""
+        """Transaction date."""
         return self._date
 
     def entered(self):
-        """Date the Transaction was entered in the system"""
+        """Date the Transaction was entered in the system."""
         return self._entered
 
-    def is_recorded(self):
-        """Is transaction already recorded by bank"""
-        return True if self._recorded else False
+    def operations(self):
+        """A list of operations included in this transaction."""
+        return self._operations
+
+
+class Operation:
+    """
+    Represents an atomic operation performed on a given account.
+    """
+
+    def __init__(self, transaction, account):
+        self._transaction = transaction
+        self._account = account
+        self._recorded = None
+
+    def account(self):
+        """Account affected by this operation."""
+        return self._account
 
     def recorded(self):
         """Date the Transaction was recorded by bank"""
         return self._recorded
 
-    def record(self, recorded_date):
-        """
-        Records the transaction with the date specified
-        :param recorded_date: date of recording
-        """
-        self._recorded = recorded_date
+    def record(self, recorded):
+        """Records the operation and updates the affected account."""
+        if self._recorded:
+            raise ValueError('This operation has already been recorded.')
+        self._recorded = recorded
+        self._account.record(self)
 
 
-class Bill(Transaction):
+class DepositOperation(Operation):
     """
-    Represents a bill that's paid from an account.
+    Represents a deposit operation
     """
 
     def balance_change(self):
-        """The actual change to the account _balance. Usually equal to amount() or -amount()."""
-        return -self._amount
+        return self._transaction._amount
+
+
+class BillOperation(Operation):
+    """
+    Represents a bill operation
+    """
+
+    def balance_change(self):
+        return -self._transaction._amount
 
 
 class Deposit(Transaction):
     """
-    Represents a deposit to an account.
+    Base class for simple transactions (deposits and bills).
+
+    Simple transactions affect a single account with a single operation.
     """
 
-    def balance_change(self):
-        """The actual change to the account _balance. Usually equal to amount() or -amount()."""
-        return self._amount
-
-
-class TransferSide:
-    """
-    Either incoming or outgoing side of a transfer
-    """
-
-    def __init__(self, transfer, recorded=None):
-        self._transfer = transfer
-        self._recorded = recorded
-
-    def __eq__(self, other):
+    def __init__(self, account, amount, tx_date, entered=None):
         """
-        Compares two TransferSides, by their types and fields
-        :param other: TransferSide to be compared to
-        :return: True if this and other are of the same type and have the same fields' values
+        Constructor
+        :param account: affected account
+        :param amount: transaction amount
+        :param tx_date: transaction date
+        :param entered: date it was entered to the system, today() if None
         """
-        # Note: Can't compare __dict__'s, as this compares _transaction's which causes an infinite
-        # recursion
-        if type(self) is type(other):
-            return (self._transfer == other._transfer)
-        else:
-            return False
+        super().__init__(tx_date, entered)
 
-    def amount(self):
-        """Transaction amount"""
-        return self._transfer.amount()
+        self._amount = amount
+        self._operations.append(DepositOperation(self, account))
 
-    def date(self):
-        """Transaction date"""
-        return self._transfer.date()
-
-    def entered(self):
-        """Date the Transaction was entered in the system"""
-        return self._transfer.entered()
-
-    def is_recorded(self):
-        """Is transfer already recorded by bank on this side?"""
-        return True if self._recorded else False
-
-    def recorded(self):
-        """Date the Transfer was recorded by bank on this side"""
-        return self._recorded
-
-    def record(self, recorded_date):
-        """Records the transfer on this side"""
-        self._recorded = recorded_date
+        # TODO: str() and repr()
 
 
-class TransferIn(TransferSide):
+class Bill(Transaction):
+    """
+    Base class for simple transactions (deposits and bills).
+
+    Simple transactions affect a single account with a single operation.
+    """
+
+    def __init__(self, account, amount, tx_date, entered=None):
+        """
+        Constructor
+        :param account: affected account
+        :param amount: transaction amount
+        :param tx_date: transaction date
+        :param entered: date it was entered to the system, today() if None
+        """
+        super().__init__(tx_date, entered)
+
+        self._amount = amount
+        self._operations.append(BillOperation(self, account))
+
+        # TODO: str() and repr()
+
+
+class TransferIn(Operation):
     """
     Represents an incoming side of a Transfer
     """
 
-    def account(self):
-        """The account being affected."""
-        return self._transfer._account_to
-    
     def balance_change(self):
         """The actual change to the account_balance. Usually equal to amount() or -amount()."""
-        return self._transfer._amount
+        return self._transaction._amount
 
 
-class TransferOut(TransferSide):
+class TransferOut(Operation):
     """
     Represents an incoming side of a Transfer
     """
 
-    def account(self):
-        """The account being affected."""
-        return self._transfer._account
-    
     def balance_change(self):
         """The actual change to the account _balance. Usually equal to amount() or -amount()."""
-        return -self._transfer._amount
+        return -self._transaction._amount
 
 
 class Transfer(Transaction):
@@ -169,7 +148,7 @@ class Transfer(Transaction):
     Represents a transfer between accounts
     """
 
-    def __init__(self, account_from, account_to, amount, tx_date, entered=None, out_recorded=None, in_recorded=None):
+    def __init__(self, account_from, account_to, amount, tx_date, entered=None):
         """
         Constructor
         :param amount: transfer amount
@@ -179,25 +158,17 @@ class Transfer(Transaction):
         :param in_recorded: date the transfer was recorded at destination bank
         :return:
         """
-        super().__init__(account_from, amount, tx_date, entered, recorded=None)
+        super().__init__(tx_date, entered)
 
-        self._out = TransferOut(self, out_recorded)
-        self._in = TransferIn(self, in_recorded)
-        self._account_to = account_to
+        self._amount = amount
+        self._out = TransferOut(self, account_from)
+        self._in = TransferIn(self, account_to)
+        self._operations.append(self._out)
+        self._operations.append(self._in)
 
-    def __eq__(self, other):
-        """
-        Compares two Transfers, by their types and fields
-        :param other: Transfer to be compared to
-        :return: True if this and other are of the same type and have the same fields' values
-        """
-        if type(self) is type(other):
-            return (are_equal(self.__dict__, other.__dict__, exclude=['_account', '_account_to', 
-                                                                      '_out', '_in']) and
-                    self._out._recorded == other._out._recorded and
-                    self._in._recorded == other._in._recorded)
-        else:
-            return False
+    def amount(self):
+        """The transfer amount."""
+        return self._amount
 
     def incoming(self):
         """Incoming side of the Transfer"""
@@ -206,10 +177,6 @@ class Transfer(Transaction):
     def outgoing(self):
         """Outgoing side of the Transfer"""
         return self._out
-
-    def is_recorded(self):
-        """Is this transfer recorded by banks on both sides?"""
-        return self._in.is_recorded() and self._out.is_recorded()
 
     def recorded(self):
         """Date this Transfer was recorded by both banks"""

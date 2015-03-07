@@ -1,6 +1,5 @@
 from decimal import Decimal
 from beancounter.basics.transaction import Deposit, Bill, Transfer
-from beancounter.basics.utils import are_equal
 
 
 class Account:
@@ -8,11 +7,11 @@ class Account:
     Represents an account (a place to keep cash)
     """
 
-    def __init__(self, logbook, name, balance=Decimal('0.00')):
+    def __init__(self, name, balance=Decimal('0.00')):
         self._name = name
         self._balance = balance
+        self._recorded_balance = balance
         self._initial_balance = self._balance
-        self._logbook = logbook
 
     def name(self):
         """Returns Account name"""
@@ -22,9 +21,11 @@ class Account:
         """Returns the current balance"""
         return self._balance
 
-    def transactions(self):
-        """Returns list of transactions entered for this account"""
-        return [tx for tx in self._logbook.transactions if tx.account() is self]
+    def recorded_balance(self):
+        """
+        Recorded balance - a balance of an account that includes only recorded transactions
+        """
+        return self._recorded_balance
 
     def __str__(self):
         return "Account('{name}')".format(name=self._name)
@@ -34,92 +35,76 @@ class Account:
             name=self._name, balance=repr(self._balance)
         )
 
-    def __eq__(self, other):
+    def enter(self, operation):
         """
-        Compares two Accounts, by their types and fields
-        :param other: Transaction to be compared to
-        :return: True if this and other are of the same type and have the same fields' values
+        Registers an operation, updating the account balance
+        :param operation:
         """
-        if type(self) is type(other):
-            if self.transactions() != other.transactions():
-                return False
-            return are_equal(self.__dict__, other.__dict__, exclude=['_logbook'])
-        else:
-            return False
+        self._balance += operation.balance_change()
 
-    def register(self, transaction):
+    def record(self, operation):
         """
-        Registers a transaction, updating the account balance
-        :param transaction:
+        Registers an operation, updating the account balance
+        :param operation:
         """
-        self._logbook.transactions.append(transaction)
-        self._balance += transaction.balance_change()
-
-    def deposit(self, amount, deposit_date):
-        """
-        Deposit money to the account
-        :param amount: amount, right? Make it Decimal
-        :return: Deposit object representing the new deposit
-        """
-        deposit = Deposit(self, amount, deposit_date)
-        self.register(deposit)
-        return deposit
-
-    def bill(self, amount, bill_date):
-        """
-        Deposit money to the account
-        :param amount: amount, right? Make it Decimal
-        :return: Bill object representing the new bill
-        """
-        bill = Bill(self, amount, bill_date)
-        self.register(bill)
-        return bill
-
-    def transfer(self, to_account, amount, tx_date, entered=None, recorded=None,
-                 dest_recorded=None):
-        transfer = Transfer(self, to_account, amount, tx_date, entered, recorded, dest_recorded)
-        self.register(transfer.outgoing())
-        to_account.register(transfer.incoming())
-        return transfer
-
-    def recorded_balance(self):
-        """
-        Recorded balance - a balance of an account that includes only recorded transactions
-        :return: recorded account balance
-        """
-        recorded_change = sum(t.balance_change() for t in self.transactions() if t.is_recorded())
-        return self._initial_balance + recorded_change
+        self._recorded_balance += operation.balance_change()
 
 
-class Finances:
+class Logbook:
     """
-    Container class for all finances, accounts, transactions and budget.
+    Container class for all accounts, transactions and budget.
     """
 
-    def __init__(self, transactions=[]):
+    def __init__(self):
         """
-        Constructor.
-        :param accounts: list of accounts included in the finances being tracked
-        :return: new Finances object.
+        Constructor. Returns a new Logbook object.
         """
-        self.accounts = []
-        self.transactions = transactions
+        self._accounts = []
+        self._transactions = []
 
-    def __eq__(self, other):
-        """
-        Compares two Finances, by their types and fields
-        :param other: Finances object to be compared to
-        :return: True if this and other are of the same type and have the same fields' values
-        """
-        if type(self) is type(other):
-            return self.__dict__ == other.__dict__
-        else:
-            return False
+    def accounts(self):
+        return self._accounts
+
+    def transactions(self):
+        return self._transactions
 
     def add_account(self, name, balance=Decimal('0.00')):
         """
         TODO: docstring :-)
         """
-        account = Account(self, name, balance=balance)
-        self.accounts.append(account)
+        account = Account(name, balance=balance)
+        self._accounts.append(account)
         return account
+
+    def deposit(self, account, amount, tx_date, entered=None, recorded=None):
+        """
+        Enters a deposit to an account into the log.
+        """
+        deposit = Deposit(account, amount, tx_date, entered)
+        self.enter(deposit)
+        return deposit
+
+    def bill(self, account, amount, tx_date, entered=None, recorded=None):
+        """
+        Enters a deposit to an account into the log.
+        """
+        bill = Bill(account, amount, tx_date, entered)
+        self.enter(bill)
+        return bill
+
+    def transfer(self, account_from, account_to, amount, tx_date, entered=None, recorded=None):
+        """
+        Enters a deposit to an account into the log.
+        """
+        transfer = Transfer(account_from, account_to, amount, tx_date, entered)
+        self.enter(transfer)
+        return transfer
+
+    def enter(self, transaction):
+        """
+        Enters a transaction into the log.
+        """
+        self._transactions.append(transaction)
+        for operation in transaction.operations():
+            operation.account().enter(operation)
+        return self
